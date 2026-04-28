@@ -147,16 +147,11 @@
       font-weight: 600;
     }
 
-    .nav a:hover, .nav a.active {
+    .nav a:hover {
       color: var(--text);
       background: rgba(255, 255, 255, 0.04);
       border-color: rgba(255, 255, 255, 0.08);
       transform: translateX(4px);
-    }
-
-    .nav a:active {
-      transform: translateX(4px) scale(0.98);
-      transition-duration: 0.1s;
     }
 
     .nav-dot {
@@ -197,30 +192,6 @@
       display: grid;
       gap: 24px;
       min-width: 0;
-    }
-
-    .main > .section {
-      display: none;
-    }
-
-    .main > .section.active {
-      display: block;
-    }
-
-    .clickable {
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .clickable:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-
-    .clickable:active {
-      transform: translateY(-2px) scale(0.99);
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-      transition-duration: 0.05s;
     }
 
     .hero {
@@ -671,16 +642,10 @@
         <a href="#impact"><span class="nav-dot"></span>Social Impact</a>
         <a href="#team"><span class="nav-dot"></span>Project Team</a>
       </nav>
-
-      <div class="sidebar-footer">
-        <div class="pill">GIKI Final Year Project</div>
-        <div class="pill">Zero-shot Voice Cloning</div>
-        <div class="pill">Sub-second Streaming</div>
-      </div>
     </aside>
 
     <main class="main">
-      <section class="hero section active" id="overview">
+      <section class="hero" id="overview">
         <div class="eyebrow"><i></i> Open House Project Showcase</div>
         <div class="hero-grid">
           <div>
@@ -697,7 +662,7 @@
               <div class="badge">Document voiceovers</div>
             </div>
           </div>
-          <div class="hero-card clickable">
+          <div class="hero-card">
             <div class="mini-metrics">
               <div class="metric">
                 <span class="value">&lt; 1s</span>
@@ -725,22 +690,22 @@
         </div>
 
         <div class="metric-grid">
-          <div class="metric-tile">lickable">
+          <div class="metric-tile">
             <div class="kicker">Speaker Similarity</div>
             <div class="metric-value">0.8513</div>
             <div class="metric-desc">Improved from 0.8103, indicating better voice identity preservation.</div>
           </div>
-          <div class="metric-tile">lickable">
+          <div class="metric-tile">
             <div class="kicker">F0 Correlation</div>
             <div class="metric-value">+0.0925</div>
             <div class="metric-desc">Shifted from negative to positive, showing corrected regional prosody.</div>
           </div>
-          <div class="metric-tile">lickable">
+          <div class="metric-tile">
             <div class="kicker">SNR</div>
             <div class="metric-value">44.00 dB</div>
             <div class="metric-desc">Up from 40.33 dB, reflecting cleaner output and fewer artifacts.</div>
           </div>
-          <div class="metric-tile">lickable">
+          <div class="metric-tile">
             <div class="kicker">Latency</div>
             <div class="metric-value">Real-time</div>
             <div class="metric-desc">Audio is streamed as chunks for responsive conversational playback.</div>
@@ -748,13 +713,13 @@
         </div>
 
         <div class="two-col" style="margin-top: 18px;">
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <h4>Why these metrics matter</h4>
             <p>
               Speaker similarity captures how well the cloned voice matches the source speaker. F0 correlation verifies that the model learns rhythm and intonation rather than only copying timbre. SNR shows acoustic cleanliness, which is critical for a polished demo and real-world deployment.
             </p>
           </div>
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <h4>What the numbers show</h4>
             <p>
               SpeechEcho is not just producing speech, it is learning accent-specific characteristics and improving the listening experience across voice conversion, assistant responses, and document narration.
@@ -772,7 +737,7 @@
         </div>
 
         <div class="two-col">
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <h4>Core stack</h4>
             <ul class="stack-list">
               <li class="stack-item">
@@ -799,7 +764,7 @@
             </ul>
           </div>
 
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <h4>AI pipeline</h4>
             <ul class="stack-list">
               <li class="stack-item">
@@ -837,15 +802,15 @@
         </div>
 
         <div class="workflow">
-          <article class="workflow-step" data-step="1">-step="1">
+          <article class="workflow-step" data-step="1">
             <h4>User Input Layer</h4>
             <p>Supports live voice chat, raw text, and PDF/DOC uploads. A 3–5 second sample is captured for instant voice cloning.</p>
           </article>
-          <article class="workflow-step" data-step="2">-step="2">
+          <article class="workflow-step" data-step="2">
             <h4>Backend Processing Layer</h4>
             <p>Whisper handles speech-to-text, spaCy and Llama-3 manage context and intent, and the TTS engine generates the cloned response.</p>
           </article>
-          <article class="workflow-step" data-step="3">-step="3">
+          <article class="workflow-step" data-step="3">
             <h4>Output & Streaming Layer</h4>
             <p>Responses are delivered as cloned voice, AI chat, or document voiceovers through WebSocket streaming for gapless playback.</p>
           </article>
@@ -861,7 +826,7 @@
         </div>
 
         <div class="two-col">
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <ul class="use-list">
               <li class="use-item">
                 <div class="chip">A</div>
@@ -879,7 +844,7 @@
               </li>
             </ul>
           </div>
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <ul class="use-list">
               <li class="use-item">
                 <div class="chip">E</div>
@@ -909,7 +874,7 @@
         </div>
 
         <div class="two-col">
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <ul class="impact-list">
               <li class="impact-item">
                 <div class="chip">4</div>
@@ -920,7 +885,7 @@
               </li>
             </ul>
           </div>
-          <div class="glass-card">lickable">
+          <div class="glass-card">
             <ul class="impact-list">
               <li class="impact-item">
                 <div class="chip">9</div>
@@ -942,26 +907,26 @@
           </div>
         </div>
 
-        <div class="quote-block">lickable">
+        <div class="quote-block">
           Team: Hussain Ahmad, M. Mustafa Shah, Saud Khan. Supervisors: Dr. Farah Saeed and Ms. Rabbia Hassan. Institute: Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI).
         </div>
 
         <div class="team-grid">
-          <div class="team-item">lickable">
+          <div class="team-item">
             <div class="chip">HA</div>
             <div>
               <strong>Hussain Ahmad</strong>
               <span>u2022220@giki.edu.pk</span>
             </div>
           </div>
-          <div class="team-item">lickable">
+          <div class="team-item">
             <div class="chip">MS</div>
             <div>
               <strong>M. Mustafa Shah</strong>
               <span>u2022407@giki.edu.pk</span>
             </div>
           </div>
-          <div class="team-item">lickable">
+          <div class="team-item">
             <div class="chip">SK</div>
             <div>
               <strong>Saud Khan</strong>
@@ -976,56 +941,5 @@
       </div>
     </main>
   </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const navLinks = document.querySelectorAll('.nav a');
-      const sections = document.querySelectorAll('.main > .section');
-      const sidebar = document.querySelector('.sidebar');
-      const menuButton = document.createElement('button');
-
-      // --- Menu Button for Mobile ---
-      menuButton.innerHTML = '&#9776;';
-      menuButton.className = 'menu-button';
-      document.body.appendChild(menuButton);
-      menuButton.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-      });
-
-      // --- Section Toggling ---
-      navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const targetId = link.getAttribute('href').substring(1);
-          
-          // Deactivate all sections and links
-          sections.forEach(s => s.classList.remove('active'));
-          navLinks.forEach(l => l.classList.remove('active'));
-
-          // Activate the target section and link
-          const targetSection = document.getElementById(targetId);
-          if (targetSection) {
-            targetSection.classList.add('active');
-          }
-          link.classList.add('active');
-
-          // Close sidebar on mobile after selection
-          if (window.innerWidth <= 760) {
-            sidebar.classList.remove('open');
-          }
-        });
-      });
-
-      // Set initial active state
-      const firstLink = document.querySelector('.nav a');
-      if(firstLink) {
-        firstLink.classList.add('active');
-        const firstSectionId = firstLink.getAttribute('href').substring(1);
-        const firstSection = document.getElementById(firstSectionId);
-        if(firstSection) {
-            firstSection.classList.add('active');
-        }
-      }
-    });
-  </script>
 </body>
 </html>
