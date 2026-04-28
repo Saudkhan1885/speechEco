@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SpeechEcho - Real-Time Voice Cloning & Conversational Synthesis" />
+  <title>SpeechEcho | Real-Time Voice Cloning & Conversational Synthesis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-alt: #0c1729;
+      --panel: rgba(10, 18, 32, 0.72);
+      --panel-strong: rgba(12, 22, 40, 0.9);
+      --text: #ecf3ff;
+      --muted: #a7b4cf;
+      --line: rgba(167, 180, 207, 0.16);
+      --primary: #6ae4ff;
+      --primary-2: #9b8cff;
+      --accent: #37d6a3;
+      --warning: #ffcc66;
+      --shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --max: 1360px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(106, 228, 255, 0.22), transparent 28%),
+        radial-gradient(circle at 80% 15%, rgba(155, 140, 255, 0.18), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(55, 214, 163, 0.12), transparent 26%),
+        linear-gradient(135deg, #050b15 0%, #08111e 45%, #050a13 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.5), transparent 88%);
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 28px;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      height: calc(100vh - 48px);
+      background: linear-gradient(180deg, rgba(12, 22, 40, 0.96), rgba(9, 16, 29, 0.82));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: grid;
+      gap: 14px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+
+    .logo-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(106, 228, 255, 0.2), rgba(155, 140, 255, 0.26));
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+    }
+
+    .brand h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 2rem;
+      line-height: 0.98;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: 0.25s ease;
+      font-weight: 600;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 0 0 4px rgba(106, 228, 255, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .main {
+      display: grid;
+      gap: 24px;
+      min-width: 0;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, rgba(12, 22, 40, 0.98), rgba(10, 18, 32, 0.82));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 34px;
+      box-shadow: var(--shadow);
+      isolation: isolate;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -12% -30% auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(106, 228, 255, 0.2), transparent 65%);
+      filter: blur(10px);
+      z-index: -1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      width: fit-content;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow i {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(55, 214, 163, 0.16);
+      display: inline-block;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2.6rem, 5vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      max-width: 10ch;
+    }
+
+    .hero h2 span {
+      background: linear-gradient(135deg, #ffffff 0%, #a8efff 40%, #9b8cff 100%);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 1rem;
+      max-width: 68ch;
+      margin: 18px 0 0;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .hero-card {
+      background: linear-gradient(180deg, rgba(14, 25, 44, 0.94), rgba(8, 14, 24, 0.92));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .mini-metrics {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-metrics .metric {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .metric .value {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      margin-bottom: 4px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .section {
+      background: linear-gradient(180deg, rgba(12, 22, 40, 0.92), rgba(8, 14, 24, 0.88));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .section h3 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .section .subtle {
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+      max-width: 68ch;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .glass-card h4 {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      letter-spacing: -0.02em;
+    }
+
+    .glass-card p,
+    .glass-card li {
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .metric-tile {
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      min-width: 0;
+    }
+
+    .metric-tile .kicker {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metric-tile .metric-value {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      margin-bottom: 6px;
+    }
+
+    .metric-tile .metric-desc {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .stack-list,
+    .use-list,
+    .impact-list,
+    .team-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .stack-item,
+    .use-item,
+    .impact-item,
+    .team-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(106, 228, 255, 0.18), rgba(155, 140, 255, 0.2));
+      color: var(--primary);
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .stack-item strong,
+    .use-item strong,
+    .impact-item strong,
+    .team-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .stack-item span,
+    .use-item span,
+    .impact-item span,
+    .team-item span,
+    .team-item a {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .workflow-step {
+      position: relative;
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.08);
+      min-width: 0;
+    }
+
+    .workflow-step::before {
+      content: attr(data-step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #04111e;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800;
+    }
+
+    .workflow-step h4 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .workflow-step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+      margin: 10px 0 0;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .team-item a {
+      display: inline-block;
+      margin-top: 4px;
+      color: var(--primary);
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .quote-block {
+      background: linear-gradient(135deg, rgba(106, 228, 255, 0.08), rgba(155, 140, 255, 0.08));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 20px;
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    .footer {
+      color: var(--muted);
+      text-align: center;
+      padding: 8px 0 20px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1180px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        top: auto;
+        height: auto;
+      }
+
+      .sidebar-footer {
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: 18px;
+      }
+
+      .hero-grid,
+      .two-col,
+      .workflow,
+      .metric-grid,
+      .team-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 14px;
+        gap: 14px;
+      }
+
+      .sidebar,
+      .hero,
+      .section {
+        border-radius: 22px;
+        padding: 20px;
+      }
+
+      .brand h1 {
+        font-size: 1.6rem;
+      }
+
+      .hero h2 {
+        max-width: 100%;
+      }
+
+      .hero-grid,
+      .two-col,
+      .workflow,
+      .metric-grid,
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        gap: 12px;
+      }
+
+      .section-header {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-badge">SE</div>
+        <div>
+          <h1>SpeechEcho</h1>
+          <p>Real-Time Voice Cloning & Conversational Synthesis for inclusive, accent-aware AI.</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Section navigation">
+        <a href="#overview"><span class="nav-dot"></span>Overview</a>
+        <a href="#metrics"><span class="nav-dot"></span>Metrics</a>
+        <a href="#stack"><span class="nav-dot"></span>Technology Stack</a>
+        <a href="#workflow"><span class="nav-dot"></span>Workflow</a>
+        <a href="#applications"><span class="nav-dot"></span>Use Cases</a>
+        <a href="#impact"><span class="nav-dot"></span>Social Impact</a>
+        <a href="#team"><span class="nav-dot"></span>Project Team</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pill">GIKI Final Year Project</div>
+        <div class="pill">Zero-shot Voice Cloning</div>
+        <div class="pill">Sub-second Streaming</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="hero" id="overview">
+        <div class="eyebrow"><i></i> Open House Project Showcase</div>
+        <div class="hero-grid">
+          <div>
+            <h2><span>SpeechEcho</span> for real-time voice cloning and conversational synthesis</h2>
+            <p>
+              SpeechEcho is an advanced AI platform that transforms text, documents, and live speech into natural,
+              personalized audio. It is built to capture unique vocal identity from just a few seconds of reference audio,
+              while remaining optimized for South Asian accents to reduce native-accent bias in commercial speech systems.
+            </p>
+            <div class="hero-badges">
+              <div class="badge">Zero-shot voice cloning</div>
+              <div class="badge">Accent-aware synthesis</div>
+              <div class="badge">Real-time WebSocket streaming</div>
+              <div class="badge">Document voiceovers</div>
+            </div>
+          </div>
+          <div class="hero-card">
+            <div class="mini-metrics">
+              <div class="metric">
+                <span class="value">&lt; 1s</span>
+                <span class="label">streaming latency target for gapless user experience</span>
+              </div>
+              <div class="metric">
+                <span class="value">577</span>
+                <span class="label">South Asian speakers used for fine-tuning and evaluation</span>
+              </div>
+              <div class="metric">
+                <span class="value">3–5s</span>
+                <span class="label">voice sample needed for instant cloning</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="metrics">
+        <div class="section-header">
+          <div>
+            <h3>Engineering Metrics & Evaluation</h3>
+            <p class="subtle">The system was fine-tuned with LoRA on a South Asian speaker dataset and evaluated with metrics that reflect voice similarity, prosody, clarity, and latency.</p>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-tile">
+            <div class="kicker">Speaker Similarity</div>
+            <div class="metric-value">0.8513</div>
+            <div class="metric-desc">Improved from 0.8103, indicating better voice identity preservation.</div>
+          </div>
+          <div class="metric-tile">
+            <div class="kicker">F0 Correlation</div>
+            <div class="metric-value">+0.0925</div>
+            <div class="metric-desc">Shifted from negative to positive, showing corrected regional prosody.</div>
+          </div>
+          <div class="metric-tile">
+            <div class="kicker">SNR</div>
+            <div class="metric-value">44.00 dB</div>
+            <div class="metric-desc">Up from 40.33 dB, reflecting cleaner output and fewer artifacts.</div>
+          </div>
+          <div class="metric-tile">
+            <div class="kicker">Latency</div>
+            <div class="metric-value">Real-time</div>
+            <div class="metric-desc">Audio is streamed as chunks for responsive conversational playback.</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 18px;">
+          <div class="glass-card">
+            <h4>Why these metrics matter</h4>
+            <p>
+              Speaker similarity captures how well the cloned voice matches the source speaker. F0 correlation verifies that the model learns rhythm and intonation rather than only copying timbre. SNR shows acoustic cleanliness, which is critical for a polished demo and real-world deployment.
+            </p>
+          </div>
+          <div class="glass-card">
+            <h4>What the numbers show</h4>
+            <p>
+              SpeechEcho is not just producing speech, it is learning accent-specific characteristics and improving the listening experience across voice conversion, assistant responses, and document narration.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="stack">
+        <div class="section-header">
+          <div>
+            <h3>Technology Stack</h3>
+            <p class="subtle">The architecture is intentionally decoupled and asynchronous so the frontend remains responsive while AI tasks run through the backend pipeline.</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="glass-card">
+            <h4>Core stack</h4>
+            <ul class="stack-list">
+              <li class="stack-item">
+                <div class="chip">R</div>
+                <div>
+                  <strong>Frontend</strong>
+                  <span>React 18 for a fast, component-driven interface.</span>
+                </div>
+              </li>
+              <li class="stack-item">
+                <div class="chip">F</div>
+                <div>
+                  <strong>Backend</strong>
+                  <span>FastAPI, SQLAlchemy, PostgreSQL, and SQLite for structured data handling.</span>
+                </div>
+              </li>
+              <li class="stack-item">
+                <div class="chip">W</div>
+                <div>
+                  <strong>Streaming</strong>
+                  <span>WebSocket-based delivery for real-time audio chunks and live responses.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="glass-card">
+            <h4>AI pipeline</h4>
+            <ul class="stack-list">
+              <li class="stack-item">
+                <div class="chip">S</div>
+                <div>
+                  <strong>STT</strong>
+                  <span>OpenAI Faster-Whisper for instant transcription.</span>
+                </div>
+              </li>
+              <li class="stack-item">
+                <div class="chip">L</div>
+                <div>
+                  <strong>LLM</strong>
+                  <span>Llama-3 through Groq API for contextual response generation.</span>
+                </div>
+              </li>
+              <li class="stack-item">
+                <div class="chip">T</div>
+                <div>
+                  <strong>TTS & NLP</strong>
+                  <span>Chatterbox TTS for zero-shot voice cloning and spaCy for entity extraction and document optimization.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="workflow">
+        <div class="section-header">
+          <div>
+            <h3>System Workflow & Architecture</h3>
+            <p class="subtle">SpeechEcho uses a three-layer pipeline that keeps input, processing, and output tightly coordinated while preserving low latency.</p>
+          </div>
+        </div>
+
+        <div class="workflow">
+          <article class="workflow-step" data-step="1">
+            <h4>User Input Layer</h4>
+            <p>Supports live voice chat, raw text, and PDF/DOC uploads. A 3–5 second sample is captured for instant voice cloning.</p>
+          </article>
+          <article class="workflow-step" data-step="2">
+            <h4>Backend Processing Layer</h4>
+            <p>Whisper handles speech-to-text, spaCy and Llama-3 manage context and intent, and the TTS engine generates the cloned response.</p>
+          </article>
+          <article class="workflow-step" data-step="3">
+            <h4>Output & Streaming Layer</h4>
+            <p>Responses are delivered as cloned voice, AI chat, or document voiceovers through WebSocket streaming for gapless playback.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="applications">
+        <div class="section-header">
+          <div>
+            <h3>Use Cases & Applications</h3>
+            <p class="subtle">The platform is designed to work in practical settings where personalized, expressive speech creates measurable value.</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="glass-card">
+            <ul class="use-list">
+              <li class="use-item">
+                <div class="chip">A</div>
+                <div>
+                  <strong>Virtual Assistants</strong>
+                  <span>Human-like AI companions for 24/7 support and conversational interaction.</span>
+                </div>
+              </li>
+              <li class="use-item">
+                <div class="chip">C</div>
+                <div>
+                  <strong>Content Creation</strong>
+                  <span>Fast, localized voiceovers for media, videos, and narration workflows.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="glass-card">
+            <ul class="use-list">
+              <li class="use-item">
+                <div class="chip">E</div>
+                <div>
+                  <strong>EdTech & Accessibility</strong>
+                  <span>Interactive study assistants and accessible document reading for visually impaired users.</span>
+                </div>
+              </li>
+              <li class="use-item">
+                <div class="chip">D</div>
+                <div>
+                  <strong>Document Voiceovers</strong>
+                  <span>Transform PDF and document content into natural audio delivery for faster consumption.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="impact">
+        <div class="section-header">
+          <div>
+            <h3>Social Impact & SDGs</h3>
+            <p class="subtle">SpeechEcho aligns with education and innovation goals by making speech technology more inclusive and useful for diverse accents and learning environments.</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="glass-card">
+            <ul class="impact-list">
+              <li class="impact-item">
+                <div class="chip">4</div>
+                <div>
+                  <strong>SDG 4: Quality Education</strong>
+                  <span>Improves learning through interactive, accessible audio-based study tools.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="glass-card">
+            <ul class="impact-list">
+              <li class="impact-item">
+                <div class="chip">9</div>
+                <div>
+                  <strong>SDG 9: Industry, Innovation & Infrastructure</strong>
+                  <span>Advances inclusive AI communication systems with accent-aware speech technologies.</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="team">
+        <div class="section-header">
+          <div>
+            <h3>Project Team</h3>
+            <p class="subtle">Use this section as the contact block for your open-house presentation and GitHub repository landing page.</p>
+          </div>
+        </div>
+
+        <div class="quote-block">
+          Team: Hussain Ahmad, M. Mustafa Shah, Saud Khan. Supervisors: Dr. Farah Saeed and Ms. Rabbia Hassan. Institute: Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI).
+        </div>
+
+        <div class="team-grid">
+          <div class="team-item">
+            <div class="chip">HA</div>
+            <div>
+              <strong>Hussain Ahmad</strong>
+              <span>u2022220@giki.edu.pk</span>
+            </div>
+          </div>
+          <div class="team-item">
+            <div class="chip">MS</div>
+            <div>
+              <strong>M. Mustafa Shah</strong>
+              <span>u2022407@giki.edu.pk</span>
+            </div>
+          </div>
+          <div class="team-item">
+            <div class="chip">SK</div>
+            <div>
+              <strong>Saud Khan</strong>
+              <span>u2022533@giki.edu.pk</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        SpeechEcho landing page concept for GitHub deployment and open-house presentation.
+      </div>
+    </main>
+  </div>
+</body>
+</html>
